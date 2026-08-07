@@ -545,6 +545,8 @@ void HandlePngToNtrCommand(char *inputPath, char *outputPath, int argc, char **a
     options.rotate = 0;
     options.noSkip = false;
 
+    bool freeCellPath = false;
+
     for (int i = 3; i < argc; i++)
     {
         char *option = argv[i];
@@ -573,6 +575,7 @@ void HandlePngToNtrCommand(char *inputPath, char *outputPath, int argc, char **a
 
             if (strcmp(options.cellFilePath, "-preservepath") == 0)
             {
+                freeCellPath = true;
                 const char *suffix = "_cell.json";
                 size_t inputStemSize = strlen(inputPath) - strlen(".png");
                 options.cellFilePath = calloc(inputStemSize + strlen(suffix) + 1, sizeof(char));
@@ -746,6 +749,10 @@ void HandlePngToNtrCommand(char *inputPath, char *outputPath, int argc, char **a
     }
 
     ConvertPngToNtr(inputPath, outputPath, &options);
+
+    if (freeCellPath) {
+        free(options.cellFilePath);
+    }
 }
 
 void HandlePngToNtrLzCommand(char *inputPath, char *outputPath, int argc, char **argv)
@@ -1075,6 +1082,8 @@ void HandleJascToNtrPaletteCommand(char *inputPath, char *outputPath, int argc, 
             snprintf(extendedInputPath, pathLen + 4, "%.*s_%d.pal", pathLen - 6, inputPath, i);
             ReadJascPalette(extendedInputPath, &palette, i);
         }
+        free(extendedInputPath);
+
         if (nopad)
         {
             palette.numColors *= extendedLength;
